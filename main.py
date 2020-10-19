@@ -5,8 +5,19 @@ from words import word_list
 from time import perf_counter
 from datetime import datetime, date
 
-lb = pd.read_excel('leaderboard.xlsx')
-db = pd.read_excel('database.xlsx')
+try:
+    lb = pd.read_excel('leaderboard.xlsx')
+except FileNotFoundError:
+    lb = pd.DataFrame(columns=['Sl No', 'Player Name', 'Win Percentage',
+                               'Score', 'Total Time Taken for completion'])
+    lb.to_excel("leaderboard.xlsx", index=False)
+
+try:
+    db = pd.read_excel('database.xlsx')
+except FileNotFoundError:
+    db = pd.DataFrame(columns=['Sl No', 'Player Name', 'Total Games Played',
+                               'Games Won', 'Start Time', 'Start Date'])
+    db.to_excel("database.xlsx", index=False)
 
 
 def get_word():
@@ -158,12 +169,6 @@ def check_user(s):
         return False
 
 
-def write_to_excel(o, p):
-    writer = pd.ExcelWriter(p, engine='xlsxwriter')
-    o.to_excel(writer, index=False)
-    writer.save()
-
-
 def main():
     row_count = 0
     word = get_word()
@@ -193,9 +198,10 @@ def main():
         lb.loc[m] = [m, name, wp, updated_score, updated_ttt]
         lb.sort_values(['Win Percentage', 'Score', 'Total Time Taken for completion'],
                        ascending=[False, False, True], inplace=True)
+
         print(lb)
-        write_to_excel(lb, "leaderboard.xlsx")
-        write_to_excel(db, "database.xlsx")
+        lb.to_excel("leaderboard.xlsx", index=False)
+        db.to_excel("database.xlsx", index=False)
     else:  # new user
         if score > 0:
             wp = 100  # win percent
@@ -217,15 +223,8 @@ def main():
                        ascending=[False, False, True], inplace=True)
         print(df)
         print(df2)
-        write_to_excel(df, "leaderboard.xlsx")
-        write_to_excel(df2, "database.xlsx")
-
-    """
-    while input("Play Again? (Y/N) ").upper() == "Y":
-        word = get_word()
-        result = play(word)
-        print(result)
-    """
+        df.to_excel("leaderboard.xlsx", index=False)
+        df2.to_excel("database.xlsx", index=False)
 
 
 if __name__ == "__main__":
